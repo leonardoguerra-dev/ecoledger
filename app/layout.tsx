@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ThemeRegistry from "./theme/ThemeRegistry";
+import MainLayout from "./components/layout/MainLayout";
 
 export const metadata: Metadata = {
   title: "EcoLedger",
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeRegistry>{children}</ThemeRegistry>
+        <ThemeRegistry>
+          <MainLayout>{children}</MainLayout>
+        </ThemeRegistry>
       </body>
     </html>
   );
