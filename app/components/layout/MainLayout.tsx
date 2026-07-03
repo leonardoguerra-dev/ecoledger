@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link"; // Imported Next.js Link for client-side navigation
 import { useTheme } from "@mui/material/styles";
 import {
   AppBar,
@@ -43,10 +44,11 @@ export default function MainLayout({ children }: Props) {
     setMobileOpen(!mobileOpen);
   };
 
+  // Added explicit routing paths matching Next.js App Router structure
   const navigationItems = [
-    { text: "Dashboard", icon: <DashboardIcon /> },
-    { text: "Transactions", icon: <ReceiptLongIcon /> },
-    { text: "Eco Impact", icon: <EcoIcon /> },
+    { text: "Dashboard", icon: <DashboardIcon />, href: "/" },
+    { text: "Transactions", icon: <ReceiptLongIcon />, href: "/transactions" },
+    { text: "Eco Impact", icon: <EcoIcon />, href: "/eco-impact" }, // Fallback route for future implementation
   ];
 
   const themeToggleButton = (
@@ -80,7 +82,11 @@ export default function MainLayout({ children }: Props) {
         <List>
           {navigationItems.map((item) => (
             <ListItem key={item.text} disablePadding>
-              <ListItemButton>
+              <ListItemButton
+                component={Link}
+                href={item.href}
+                onClick={() => setMobileOpen(false)} // Auto-closes mobile responsive drawer on click
+              >
                 <ListItemIcon sx={{ color: "primary.main" }}>
                   {item.icon}
                 </ListItemIcon>
@@ -184,15 +190,15 @@ export default function MainLayout({ children }: Props) {
         </Drawer>
       </Box>
 
-      {/* Main Application Content Area - CRITICAL RESPONSIVE FIXES APPLIED */}
+      {/* Main Application Content Area */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          maxWidth: "100%", // Prevents layout from scaling beyond viewport width
-          minWidth: 0, // Crucial for Flexbox containers to let inner text/tables overflow isolated
+          maxWidth: "100%",
+          minWidth: 0,
           backgroundColor: "background.default",
           minHeight: "100vh",
         }}
