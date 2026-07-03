@@ -47,7 +47,7 @@ export default function MainLayout({ children }: Props) {
   // Added explicit routing paths matching Next.js App Router structure
   const navigationItems = [
     { text: "Dashboard", icon: <DashboardIcon />, href: "/" },
-    { text: "Transactions", icon: <ReceiptLongIcon />, href: "/transactions" },
+    { text: "Transitions", icon: <ReceiptLongIcon />, href: "/transitions" },
     { text: "Eco Impact", icon: <EcoIcon />, href: "/eco-impact" }, // Fallback route for future implementation
   ];
 

@@ -14,37 +14,99 @@ import {
 import { BarChart } from "@mui/x-charts/BarChart";
 
 export default function AnalyticsChart() {
-  const [timeRange, setTimeRange] = React.useState<string>("6");
+  const [metric, setMetric] = React.useState<string>("cost");
 
-  // Full mock dataset
+  // Atemporal 12-Month Dataset comparing Baseline vs Simulated Scenario
   const fullDataset = [
-    { month: "Jul 25", exp: 1400, co2: 190 },
-    { month: "Aug 25", exp: 1100, co2: 150 },
-    { month: "Sep 25", exp: 1650, co2: 175 },
-    { month: "Oct 25", exp: 1300, co2: 160 },
-    { month: "Nov 25", exp: 1750, co2: 205 },
-    { month: "Dec 25", exp: 2200, co2: 290 },
-    { month: "Jan 26", exp: 1200, co2: 180 },
-    { month: "Feb 26", exp: 1900, co2: 220 },
-    { month: "Mar 26", exp: 1500, co2: 140 },
-    { month: "Apr 26", exp: 1800, co2: 210 },
-    { month: "May 26", exp: 1400, co2: 130 },
-    { month: "Jun 26", exp: 2100, co2: 245 },
+    {
+      month: "Jan",
+      baselineCost: 45000,
+      simCost: 42000,
+      baselineCo2: 120,
+      simCo2: 95,
+    },
+    {
+      month: "Feb",
+      baselineCost: 43000,
+      simCost: 41000,
+      baselineCo2: 115,
+      simCo2: 90,
+    },
+    {
+      month: "Mar",
+      baselineCost: 40000,
+      simCost: 36000,
+      baselineCo2: 110,
+      simCo2: 80,
+    },
+    {
+      month: "Apr",
+      baselineCost: 38000,
+      simCost: 32000,
+      baselineCo2: 100,
+      simCo2: 70,
+    },
+    {
+      month: "May",
+      baselineCost: 35000,
+      simCost: 28000,
+      baselineCo2: 95,
+      simCo2: 60,
+    },
+    {
+      month: "Jun",
+      baselineCost: 37000,
+      simCost: 29000,
+      baselineCo2: 98,
+      simCo2: 62,
+    },
+    {
+      month: "Jul",
+      baselineCost: 39000,
+      simCost: 31000,
+      baselineCo2: 105,
+      simCo2: 68,
+    },
+    {
+      month: "Aug",
+      baselineCost: 38000,
+      simCost: 30000,
+      baselineCo2: 102,
+      simCo2: 65,
+    },
+    {
+      month: "Sep",
+      baselineCost: 36000,
+      simCost: 29000,
+      baselineCo2: 96,
+      simCo2: 61,
+    },
+    {
+      month: "Oct",
+      baselineCost: 41000,
+      simCost: 34000,
+      baselineCo2: 112,
+      simCo2: 78,
+    },
+    {
+      month: "Nov",
+      baselineCost: 44000,
+      simCost: 38000,
+      baselineCo2: 118,
+      simCo2: 88,
+    },
+    {
+      month: "Dec",
+      baselineCost: 48000,
+      simCost: 41000,
+      baselineCo2: 125,
+      simCo2: 92,
+    },
   ];
 
-  const handleRangeChange = (event: SelectChangeEvent) => {
-    setTimeRange(event.target.value);
+  const handleMetricChange = (event: SelectChangeEvent) => {
+    setMetric(event.target.value);
   };
-
-  const getFilteredData = () => {
-    const monthsToDisplay = parseInt(timeRange, 10);
-    if (fullDataset.length <= monthsToDisplay) {
-      return fullDataset;
-    }
-    return fullDataset.slice(-monthsToDisplay);
-  };
-
-  const filteredData = getFilteredData();
 
   return (
     <Card
@@ -55,7 +117,6 @@ export default function AnalyticsChart() {
       }}
     >
       <CardContent>
-        {/* Header section with title and responsive filter control */}
         <Box
           sx={{
             display: "flex",
@@ -67,42 +128,64 @@ export default function AnalyticsChart() {
           }}
         >
           <Typography variant="h6" component="h2" sx={{ fontWeight: "bold" }}>
-            Monthly Overview
+            Transition Optimization Forecast (12-Month Cycle)
           </Typography>
 
-          <FormControl size="small" sx={{ minWidth: 140 }}>
+          <FormControl size="small" sx={{ minWidth: 180 }}>
             <Select
-              value={timeRange}
-              onChange={handleRangeChange}
+              value={metric}
+              onChange={handleMetricChange}
               displayEmpty
-              inputProps={{ "aria-label": "Filter time range" }}
+              inputProps={{ "aria-label": "Select Chart Metric" }}
               sx={{ borderRadius: 2 }}
             >
-              <MenuItem value="3">Last 3 Months</MenuItem>
-              <MenuItem value="6">Last 6 Months</MenuItem>
-              <MenuItem value="12">Last 12 Months</MenuItem>
+              <MenuItem value="cost">Financial OPEX (€)</MenuItem>
+              <MenuItem value="co2">Carbon Footprint (tCO2e)</MenuItem>
             </Select>
           </FormControl>
         </Box>
 
-        {/* Chart container with fixed height */}
+        {/* Dynamic series mapping based on selected dropdown metric */}
         <Box sx={{ width: "100%", height: 350 }}>
           <BarChart
-            dataset={filteredData}
+            dataset={fullDataset}
             xAxis={[
               {
                 scaleType: "band",
                 dataKey: "month",
-                categoryGapRatio: 0.5, // Standard type-safe way to increase spacing between groups
-                barGapRatio: 0.1, // Spacing between the bars inside the same group
+                categoryGapRatio: 0.4,
+                barGapRatio: 0.1,
               },
             ]}
-            series={[
-              { dataKey: "exp", label: "Expenses (€)", color: "#2e7d32" },
-              { dataKey: "co2", label: "CO2 Impact (kg)", color: "#d32f2f" },
-            ]}
+            series={
+              metric === "cost"
+                ? [
+                    {
+                      dataKey: "baselineCost",
+                      label: "Baseline Cost (€)",
+                      color: "#78909c",
+                    },
+                    {
+                      dataKey: "simCost",
+                      label: "Simulated Scenario Cost (€)",
+                      color: "#2e7d32",
+                    },
+                  ]
+                : [
+                    {
+                      dataKey: "baselineCo2",
+                      label: "Baseline CO2 (tCO2e)",
+                      color: "#b0bec5",
+                    },
+                    {
+                      dataKey: "simCo2",
+                      label: "Simulated Scenario CO2 (tCO2e)",
+                      color: "#e53935",
+                    },
+                  ]
+            }
             height={300}
-            margin={{ top: 20, bottom: 40, left: 50, right: 20 }}
+            margin={{ top: 20, bottom: 40, left: 65, right: 20 }}
             slotProps={{
               legend: {
                 direction: "horizontal",

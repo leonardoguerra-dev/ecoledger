@@ -1,38 +1,40 @@
 "use client";
+
 import { Box, Card, CardContent, Grid, Typography } from "@mui/material";
 import {
-  AccountBalanceWallet as WalletIcon,
+  Factory as FactoryIcon,
   Co2 as Co2Icon,
-  Forest as ForestIcon,
+  ElectricBolt as BoltIcon,
   TrendingUp as TrendUpIcon,
   TrendingDown as TrendDownIcon,
 } from "@mui/icons-material";
 import AnalyticsChart from "./components/dashboard/AnalyticsChart";
-import RecentTransactions from "./components/dashboard/RecentTransactions";
+import RecentTransitions from "./components/dashboard/RecentTransitions";
 
 export default function Home() {
+  // KPI Metrics matching enterprise energy orchestration
   const stats = [
     {
-      title: "Total Balance",
-      value: "€ 2,450.80",
-      subtext: "+4.3% from last month",
-      icon: <WalletIcon sx={{ fontSize: 40, color: "primary.main" }} />,
+      title: "Total Energy OPEX",
+      value: "€ 452,800",
+      subtext: "-2.4% vs initial baseline",
+      icon: <BoltIcon sx={{ fontSize: 40, color: "primary.main" }} />,
+      trendIcon: <TrendDownIcon sx={{ fontSize: 16, mr: 0.5 }} />,
+      trendColor: "success.main", // Lower cost is good
+    },
+    {
+      title: "Carbon Reduction",
+      value: "1,420 tCO2e",
+      subtext: "14.2% closer to Net-Zero target",
+      icon: <Co2Icon sx={{ fontSize: 40, color: "error.main" }} />,
       trendIcon: <TrendUpIcon sx={{ fontSize: 16, mr: 0.5 }} />,
       trendColor: "success.main",
     },
     {
-      title: "Carbon Footprint",
-      value: "142 kg CO2e",
-      subtext: "-12% reduction target",
-      icon: <Co2Icon sx={{ fontSize: 40, color: "error.main" }} />,
-      trendIcon: <TrendDownIcon sx={{ fontSize: 16, mr: 0.5 }} />,
-      trendColor: "success.main",
-    },
-    {
-      title: "Eco Score",
-      value: "85 / 100",
-      subtext: "Excellent green status",
-      icon: <ForestIcon sx={{ fontSize: 40, color: "secondary.main" }} />,
+      title: "Clean Energy Share",
+      value: "42.5 %",
+      subtext: "+5.1% transition rate",
+      icon: <FactoryIcon sx={{ fontSize: 40, color: "secondary.main" }} />,
       trendIcon: <TrendUpIcon sx={{ fontSize: 16, mr: 0.5 }} />,
       trendColor: "success.main",
     },
@@ -48,11 +50,11 @@ export default function Home() {
           gutterBottom
           sx={{ fontWeight: "bold" }}
         >
-          Dashboard
+          Corporate Sustainability Cockpit
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Welcome back! Here is your environmental and financial sustainability
-          overview.
+          Scenario Planning and Decarbonization Portfolio Strategy for all
+          enterprise branches.
         </Typography>
       </Box>
 
@@ -114,14 +116,14 @@ export default function Home() {
           </Grid>
         ))}
 
-        {/* Analytics Chart Block */}
+        {/* Analytics Chart Block (Baseline vs Simulation) */}
         <Grid size={{ xs: 12 }}>
           <AnalyticsChart />
         </Grid>
 
-        {/* Recent Transactions Table Block */}
+        {/* Recent Transitions Log Table Block */}
         <Grid size={{ xs: 12 }}>
-          <RecentTransactions />
+          <RecentTransitions />
         </Grid>
       </Grid>
     </Box>
