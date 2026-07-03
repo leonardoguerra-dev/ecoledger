@@ -49,7 +49,6 @@ export default function MainLayout({ children }: Props) {
     { text: "Eco Impact", icon: <EcoIcon /> },
   ];
 
-  // Extracted theme toggle button with accessibility labels
   const themeToggleButton = (
     <IconButton
       onClick={toggleColorMode}
@@ -64,7 +63,6 @@ export default function MainLayout({ children }: Props) {
     </IconButton>
   );
 
-  // Extracted drawer content including the responsive mobile theme toggle
   const drawerContent = (
     <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <Box sx={{ flexGrow: 1 }}>
@@ -93,7 +91,6 @@ export default function MainLayout({ children }: Props) {
         </List>
       </Box>
 
-      {/* Mobile-only theme switcher container at the bottom of the drawer */}
       <Box
         sx={{
           p: 2,
@@ -111,7 +108,7 @@ export default function MainLayout({ children }: Props) {
   );
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", maxWidth: "100vw" }}>
       {/* Top Navbar Header */}
       <AppBar
         position="fixed"
@@ -144,7 +141,6 @@ export default function MainLayout({ children }: Props) {
             </Typography>
           </Box>
 
-          {/* Desktop-only theme switcher */}
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
             {themeToggleButton}
           </Box>
@@ -188,13 +184,15 @@ export default function MainLayout({ children }: Props) {
         </Drawer>
       </Box>
 
-      {/* Main Application Content Area */}
+      {/* Main Application Content Area - CRITICAL RESPONSIVE FIXES APPLIED */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
+          maxWidth: "100%", // Prevents layout from scaling beyond viewport width
+          minWidth: 0, // Crucial for Flexbox containers to let inner text/tables overflow isolated
           backgroundColor: "background.default",
           minHeight: "100vh",
         }}
