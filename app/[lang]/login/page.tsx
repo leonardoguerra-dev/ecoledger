@@ -22,40 +22,16 @@ import {
   Autorenew as AutoIcon,
 } from "@mui/icons-material";
 import { useAuth, DEMO_CREDENTIALS } from "@/context/AuthContext";
-
-// Minimal localization dictionary for the login module
-const loginTranslations: Record<string, Record<string, string>> = {
-  en: {
-    title: "Enterprise Access",
-    subtitle: "Sign in to unlock predictive sandbox and plant analytics",
-    emailLabel: "Corporate Email Address",
-    passwordLabel: "Password",
-    submitButton: "Authorize Session",
-    demoBoxTitle: "Sandbox Demo Account",
-    demoBoxDesc: "Click to auto-fill verified enterprise test credentials.",
-    loading: "Verifying credentials...",
-  },
-  it: {
-    title: "Accesso Enterprise",
-    subtitle:
-      "Accedi per sbloccare la sandbox predittiva e le analisi delle filiali",
-    emailLabel: "Indirizzo Email Aziendale",
-    passwordLabel: "Password",
-    submitButton: "Autorizza Sessione",
-    demoBoxTitle: "Account Demo Sandbox",
-    demoBoxDesc:
-      "Clicca per precompilare le credenziali enterprise verificate.",
-    loading: "Verifica credenziali in corso...",
-  },
-};
+import { useEnergy } from "@/hooks/useEnergy";
 
 export default function LoginPage() {
   const router = useRouter();
   const params = useParams();
   const { login, isLoading, authError } = useAuth();
+  const { t: globalDict } = useEnergy();
 
   const lang = (params?.lang as string) || "en";
-  const t = loginTranslations[lang] || loginTranslations.en;
+  const t = globalDict?.login;
 
   // Form states initialized as empty to demonstrate manual or auto-fill capabilities
   const [email, setEmail] = useState<string>("");
@@ -76,10 +52,11 @@ export default function LoginPage() {
     e.preventDefault();
     const success = await login({ email, password });
     if (success) {
-      // Direct redirect back to dashboard where the incremental premium fetch will fire
       router.push(getLocalizedRedirect("/"));
     }
   };
+
+  if (!t) return null;
 
   return (
     <Box
@@ -130,7 +107,6 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
-              /* Moving interface adjustments into the standardized slotProps wrapper */
               slotProps={{
                 input: {
                   startAdornment: (
@@ -154,7 +130,6 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
-              /* Merging start and end adornments within the standardized client input slot */
               slotProps={{
                 input: {
                   startAdornment: (
@@ -229,7 +204,7 @@ export default function LoginPage() {
               onClick={handleAutoFill}
               disabled={isLoading}
             >
-              Auto-Fill Credentials
+              {t.btnAutoFill}
             </Button>
           </Paper>
         </CardContent>

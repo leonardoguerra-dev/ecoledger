@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useParams } from "next/navigation";
 import {
   Box,
   Typography,
@@ -18,40 +17,13 @@ import { euroFormatter } from "@/utils/currencyFormatter";
 import { useEnergy } from "@/hooks/useEnergy";
 import { useAuth } from "@/hooks/useAuth";
 
-const tableTranslations: Record<string, Record<string, string>> = {
-  en: {
-    sectionTitle: "Sandbox Active Projections Log",
-    thTitle: "Strategy Blueprint",
-    thPlant: "Target Asset",
-    thReduction: "Mitigation Vol",
-    thCost: "Financial Capital",
-    thStatus: "Engine Type",
-    emptyPublic:
-      "Sign in with an enterprise profile to initialize structural sandbox adjustments.",
-    emptyActive:
-      "No simulations currently injected into the evaluation timeline.",
-  },
-  it: {
-    sectionTitle: "Registro delle Proiezioni Attive Sandbox",
-    thTitle: "Strategia Applicata",
-    thPlant: "Asset Target",
-    thReduction: "Volume Mitigazione",
-    thCost: "Capitale Finanziario",
-    thStatus: "Tipo Motore",
-    emptyPublic:
-      "Accedi con un profilo enterprise per inizializzare le manovre sandbox strutturali.",
-    emptyActive:
-      "Nessuna simulazione attualmente iniettata nella timeline di valutazione.",
-  },
-};
-
 export default function RecentTransitions() {
-  const params = useParams();
   const { isAuthenticated } = useAuth();
-  const { activeManovers, premiumPlants } = useEnergy();
+  const { activeManovers, premiumPlants, t: globalDict } = useEnergy();
 
-  const lang = (params?.lang as string) || "en";
-  const t = tableTranslations[lang] || tableTranslations.en;
+  const t = globalDict?.recentTransitions;
+
+  if (!t) return null;
 
   return (
     <Box>
@@ -90,7 +62,6 @@ export default function RecentTransitions() {
           </TableHead>
           <TableBody>
             {!isAuthenticated ? (
-              // Case A: User is unauthenticated (Feature Shielding Row placeholder)
               <TableRow>
                 <TableCell
                   colSpan={5}
@@ -101,7 +72,6 @@ export default function RecentTransitions() {
                 </TableCell>
               </TableRow>
             ) : activeManovers.length === 0 ? (
-              // Case B: Authenticated user but sandbox queue is empty
               <TableRow>
                 <TableCell
                   colSpan={5}
@@ -112,7 +82,6 @@ export default function RecentTransitions() {
                 </TableCell>
               </TableRow>
             ) : (
-              // Case C: Map live active maneuvers logged at runtime
               activeManovers.map((row) => {
                 const targetPlant = premiumPlants.find(
                   (p) => p.id === row.plantId,
@@ -139,7 +108,7 @@ export default function RecentTransitions() {
                     </TableCell>
                     <TableCell align="center">
                       <Chip
-                        label="SANDBOX"
+                        label={t.badgeLabel}
                         size="small"
                         color="primary"
                         variant="outlined"

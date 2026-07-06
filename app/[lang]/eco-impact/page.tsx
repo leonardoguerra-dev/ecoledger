@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import React from "react";
 import {
   Box,
   Typography,
@@ -17,28 +16,39 @@ import {
   TableHead,
   TableRow,
   CircularProgress,
+  IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { PieChart } from "@mui/x-charts/PieChart";
+import { Edit as EditIcon } from "@mui/icons-material";
 
 import { useEnergy } from "@/hooks/useEnergy";
 import { calculateCarbonTax } from "@/utils/carbonCalculations";
-import { getDictionary, DictionaryType } from "@/utils/getDictionaries";
+import PlantEditModal from "@/components/eco-impact/PlantEditModal";
+import { IndustrialPlant } from "@/types/energy";
 
 export default function EcoImpactPage() {
-  const params = useParams();
-  const { publicData, premiumPlants, isLoading, calculateSimulatedEmissions } =
-    useEnergy();
+  const {
+    publicData,
+    premiumPlants,
+    isLoading,
+    calculateSimulatedEmissions,
+    updatePlantEmissions,
+    t: globalDict,
+  } = useEnergy();
 
-  const lang = (params?.lang as string) || "en";
-  const [dict, setDict] = useState<DictionaryType | null>(null);
+  // Core filter and modal target structural variables state management
+  const [selectedSector, setSelectedSector] = React.useState<string>("All");
+  const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
+  const [activePlant, setActivePlant] = React.useState<IndustrialPlant | null>(
+    null,
+  );
 
-  useEffect(() => {
-    getDictionary(lang).then((loadedDictionary) => {
-      setDict(loadedDictionary);
-    });
-  }, [lang]);
-
-  if (isLoading || !publicData || !dict) {
+  // Guard rails to prevent rendering empty elements before full dictionary resolution
+  if (isLoading || !publicData || !globalDict) {
     return (
       <Box
         sx={{
@@ -53,9 +63,8 @@ export default function EcoImpactPage() {
     );
   }
 
-  const t = dict.ecoImpact;
+  const t = globalDict.ecoImpact;
 
-  // Global Enterprise Mix distribution data mapped out safely from centralized state
   const energyMixData = [
     { id: 0, value: 35, label: "Solar", color: "#4caf50" },
     { id: 1, value: 25, label: "Gas", color: "#ff9800" },
@@ -67,8 +76,6 @@ export default function EcoImpactPage() {
 
   const latestMonthData =
     publicData.monthlyHistory[publicData.monthlyHistory.length - 1];
-
-  // Resolve dynamic simulated state accounting for user selected sandbox alterations
   const totalSimulatedEmissions = calculateSimulatedEmissions();
 
   const simulatedTaxRisk = calculateCarbonTax(
@@ -77,23 +84,28 @@ export default function EcoImpactPage() {
     publicData.currentCarbonTaxRate,
   );
 
-  // Establish a benchmark threshold per plant based on the global regulatory limit divided by the number of plants
   const regionalBenchmarkCap =
     premiumPlants.length > 0
       ? Math.round(latestMonthData.limit / premiumPlants.length)
       : 250;
 
-  const branchCompliance = premiumPlants.map((plant) => {
-    // Using plant.currentEmissions as defined in the IndustrialPlant interface
+  // Perform dynamic filtration mapping based on user selection parameters
+  const filteredPlants = premiumPlants.filter(
+    (p) => selectedSector === "All" || p.sector === selectedSector,
+  );
+
+  const branchCompliance = filteredPlants.map((plant) => {
     const currentCo2 = plant.currentEmissions;
     const isViolated = currentCo2 > regionalBenchmarkCap;
 
     return {
+      id: plant.id,
       name: plant.name,
       currentCo2: currentCo2,
       maxCap: regionalBenchmarkCap,
       status: isViolated ? t.statusViolation : t.statusCompliant,
       isViolated,
+      rawPlant: plant,
     };
   });
 
@@ -113,7 +125,6 @@ export default function EcoImpactPage() {
         </Typography>
       </Box>
 
-      {/* Grid wrapper customized to avoid item attribute schema conflicts */}
       <Grid container spacing={4}>
         <Grid sx={{ xs: 12, md: 6 }}>
           <Card
@@ -206,9 +217,44 @@ export default function EcoImpactPage() {
         </Grid>
 
         <Grid sx={{ xs: 12 }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2, mt: 2 }}>
-            {t.tableTitle}
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+              mt: 2,
+            }}
+          >
+            <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+              {t.tableTitle}
+            </Typography>
+
+            <FormControl size="small" sx={{ minWidth: 160 }}>
+              <InputLabel id="sector-filter-label">
+                {t.filterLabel || "Sector Filter"}
+              </InputLabel>
+              <Select
+                labelId="sector-filter-label"
+                value={selectedSector}
+                label={t.filterLabel || "Sector Filter"}
+                onChange={(e) => setSelectedSector(e.target.value)}
+              >
+                <MenuItem value="All">{t.filterAll || "All Sectors"}</MenuItem>
+                <MenuItem value="Manufacturing">
+                  {t.sectorManufacturing || "Manufacturing"}
+                </MenuItem>
+                <MenuItem value="Chemical">
+                  {t.sectorChemical || "Chemical"}
+                </MenuItem>
+                <MenuItem value="Logistics">
+                  {t.sectorLogistics || "Logistics"}
+                </MenuItem>
+                <MenuItem value="Energy">{t.sectorEnergy || "Energy"}</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
           <TableContainer
             component={Paper}
             sx={{ borderRadius: 3, boxShadow: "0px 2px 8px rgba(0,0,0,0.05)" }}
@@ -227,6 +273,9 @@ export default function EcoImpactPage() {
                   <TableCell sx={{ fontWeight: 600 }} align="center">
                     {t.thStatus}
                   </TableCell>
+                  <TableCell sx={{ fontWeight: 600 }} align="center">
+                    {t.thActions || "Actions"}
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -237,11 +286,11 @@ export default function EcoImpactPage() {
                   );
 
                   return (
-                    <TableRow key={branch.name} hover>
+                    <TableRow key={branch.id} hover>
                       <TableCell sx={{ fontWeight: 600, width: "20%" }}>
                         {branch.name}
                       </TableCell>
-                      <TableCell sx={{ width: "40%" }}>
+                      <TableCell sx={{ width: "35%" }}>
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 2 }}
                         >
@@ -294,14 +343,51 @@ export default function EcoImpactPage() {
                           {branch.status}
                         </Box>
                       </TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          color="primary"
+                          size="small"
+                          onClick={() => {
+                            setActivePlant(branch.rawPlant);
+                            setIsModalOpen(true);
+                          }}
+                          aria-label={branch.name}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
+                {branchCompliance.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      align="center"
+                      sx={{ py: 4, color: "text.secondary" }}
+                    >
+                      {t.noPlantsFound ||
+                        "No industrial plants telemetry found matching the selected sector criterion."}
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
         </Grid>
       </Grid>
+
+      {/* Embedded isolated operational data input modifier with local key mounting lifecycle trigger */}
+      <PlantEditModal
+        key={activePlant?.id || "empty"}
+        open={isModalOpen}
+        plant={activePlant}
+        onClose={() => {
+          setIsModalOpen(false);
+          setActivePlant(null);
+        }}
+        onSave={updatePlantEmissions}
+      />
     </Box>
   );
 }

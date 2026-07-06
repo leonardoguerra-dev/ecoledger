@@ -23,7 +23,6 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from "@mui/material";
-
 import {
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
@@ -35,36 +34,11 @@ import {
   Logout as LogoutIcon,
   Business as BusinessIcon,
 } from "@mui/icons-material";
-
 import { useColorMode } from "@/context/ColorModeContext";
 import { useAuth } from "@/context/AuthContext";
 import { useEnergy } from "@/context/EnergyContext";
 
 const drawerWidth = 240;
-
-// Inline minimal translation dictionary for layout skeleton
-const layoutTranslations: Record<string, Record<string, string>> = {
-  en: {
-    dashboard: "Dashboard",
-    transitions: "Simulations",
-    ecoImpact: "Eco Impact",
-    overview: "Overview",
-    login: "Enterprise Login",
-    logout: "Exit Demo",
-    publicBadge: "Public Baseline",
-    premiumBadge: "Enterprise Live",
-  },
-  it: {
-    dashboard: "Dashboard",
-    transitions: "Simulazioni",
-    ecoImpact: "Impatto Eco",
-    overview: "Panoramica",
-    login: "Accedi Enterprise",
-    logout: "Esci dalla Demo",
-    publicBadge: "Dati Pubblici",
-    premiumBadge: "Premium Attivo",
-  },
-};
 
 interface Props {
   children: React.ReactNode;
@@ -76,12 +50,11 @@ export default function MainLayout({ children }: Props) {
   const pathname = usePathname();
   const { mode, toggleColorMode } = useColorMode();
   const { isAuthenticated, logout } = useAuth();
-  const { isPremiumLoading } = useEnergy();
+  const { isPremiumLoading, t: globalDict } = useEnergy();
 
-  // Extract route parameters dynamically to discover the active language
   const params = useParams();
   const lang = (params?.lang as string) || "en";
-  const t = layoutTranslations[lang] || layoutTranslations.en;
+  const t = globalDict?.layout;
 
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
@@ -89,22 +62,22 @@ export default function MainLayout({ children }: Props) {
     setMobileOpen(!mobileOpen);
   };
 
-  // Helper to build fully localized routing links natively
   const localizePath = (path: string) => {
     const cleanPath = path === "/" ? "" : path;
     return `/${lang}${cleanPath}`;
   };
 
-  // Safe locale mutation tool to route users between localized dynamic paths
   const handleLanguageChange = (newLang: string | null) => {
     if (!newLang || newLang === lang || !pathname) return;
 
     const segments = pathname.split("/");
-    segments[1] = newLang; // Mutate the internationalization route parameter safely
+    segments[1] = newLang;
     const newPath = segments.join("/");
 
     router.push(newPath);
   };
+
+  if (!t) return null;
 
   const navigationItems = [
     { text: t.dashboard, icon: <DashboardIcon />, href: "/" },
@@ -116,22 +89,19 @@ export default function MainLayout({ children }: Props) {
     <IconButton
       onClick={toggleColorMode}
       color="inherit"
-      aria-label={
-        mode === "dark" ? "Switch to light mode" : "Switch to dark mode"
-      }
+      aria-label={mode === "dark" ? t.ariaLightMode : t.ariaDarkMode}
     >
       {mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
     </IconButton>
   );
 
-  // Reusable Language Cluster Selector built for dense structural spacing
   const languageSelector = (
     <ToggleButtonGroup
       value={lang}
       exclusive
       onChange={(_, value) => handleLanguageChange(value)}
       size="small"
-      aria-label="Localization selector control group"
+      aria-label={t.ariaLangSelector}
       sx={{
         bgcolor: "background.paper",
         border: `1px solid ${theme.palette.divider}`,
@@ -185,7 +155,7 @@ export default function MainLayout({ children }: Props) {
             component="div"
             sx={{ fontWeight: "bold" }}
           >
-            EcoLedger
+            {t.brandName}
           </Typography>
         </Toolbar>
         <Divider />
@@ -223,7 +193,6 @@ export default function MainLayout({ children }: Props) {
         </List>
       </Box>
 
-      {/* Mobile-only control cluster with integrated internationalization selector */}
       <Box
         sx={{
           p: 2,
@@ -236,8 +205,9 @@ export default function MainLayout({ children }: Props) {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyBox: "space-between",
             alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
           {themeToggleButton}
@@ -302,7 +272,6 @@ export default function MainLayout({ children }: Props) {
             )}
           </Box>
 
-          {/* Desktop Controls including the Language Cluster group */}
           <Box
             sx={{
               display: { xs: "none", sm: "flex" },
@@ -336,7 +305,6 @@ export default function MainLayout({ children }: Props) {
         >
           {drawerContent}
         </Drawer>
-
         <Drawer
           variant="permanent"
           sx={{

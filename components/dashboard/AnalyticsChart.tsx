@@ -12,7 +12,6 @@ import {
   MenuItem,
   SelectChangeEvent,
   Button,
-  Paper,
 } from "@mui/material";
 import { LockOutlined as LockIcon } from "@mui/icons-material";
 import { BarChart } from "@mui/x-charts/BarChart";
@@ -20,52 +19,28 @@ import { useEnergy } from "@/hooks/useEnergy";
 import { useAuth } from "@/hooks/useAuth";
 import { calculateManoversImpact } from "@/utils/carbonCalculations";
 
-// Minimal localization dictionary for the analytical chart module
-const chartTranslations: Record<string, Record<string, string>> = {
-  en: {
-    title: "Transition Optimization Forecast (12-Month Cycle)",
-    metricCost: "Financial OPEX (€)",
-    metricCo2: "Carbon Footprint (tCO2e)",
-    labelBaseCost: "Baseline Cost (€)",
-    labelSimCost: "Simulated Scenario Cost (€)",
-    labelBaseCo2: "Baseline CO2 (tCO2e)",
-    labelSimCo2: "Simulated Scenario CO2 (tCO2e)",
-    lockedTitle: "Enterprise Analytics Locked",
-    lockedDesc:
-      "Authentication required to generate real-time multi-metric baseline comparisons.",
-    ctaLogin: "Unlock Full Forecast",
-  },
-  it: {
-    title: "Previsione di Ottimizzazione della Transizione (Ciclo 12 Mesi)",
-    metricCost: "OPEX Finanziario (€)",
-    metricCo2: "Impronta di Carbonio (tCO2e)",
-    labelBaseCost: "Costo Baseline (€)",
-    labelSimCost: "Costo Scenario Simulato (€)",
-    labelBaseCo2: "CO2 Baseline (tCO2e)",
-    labelSimCo2: "CO2 Scenario Simulato (tCO2e)",
-    lockedTitle: "Analisi Enterprise Bloccate",
-    lockedDesc:
-      "Autenticazione richiesta per generare comparazioni multi-metrica in tempo reale.",
-    ctaLogin: "Sblocca Previsioni Complete",
-  },
-};
-
 export default function AnalyticsChart() {
   const router = useRouter();
   const params = useParams();
   const { isAuthenticated } = useAuth();
-  const { publicData, premiumPlants, activeManovers } = useEnergy();
+  const {
+    publicData,
+    premiumPlants,
+    activeManovers,
+    t: globalDict,
+  } = useEnergy();
 
   const lang = (params?.lang as string) || "en";
-  const t = chartTranslations[lang] || chartTranslations.en;
-
   const [metric, setMetric] = React.useState<string>("cost");
+
+  // Fallback shielding if global dictionary block isn't fully loaded by the provider context yet
+  if (!globalDict) return null;
+  const t = globalDict.analyticsChart;
 
   const handleMetricChange = (event: SelectChangeEvent) => {
     setMetric(event.target.value);
   };
 
-  // 1. Feature Shielding Guard: Return an elegant placeholder card if user is public
   if (!isAuthenticated || !publicData) {
     return (
       <Card
@@ -107,21 +82,16 @@ export default function AnalyticsChart() {
     );
   }
 
-  // 2. Dynamic Dataset Generation using live Context telemetry parameters
   const { totalCo2Reduced, taxSavings } = calculateManoversImpact(
     activeManovers,
     premiumPlants,
     publicData.currentCarbonTaxRate,
   );
 
-  // Distribute the cumulative real-time reductions across the historical data sequence
   const dynamicDataset = publicData.monthlyHistory.map((item, index) => {
     const isLatestMonth = index === publicData.monthlyHistory.length - 1;
+    const baseCost = item.emissions * 12;
 
-    // Default mock calculation values for operational financial parameters
-    const baseCost = item.emissions * 12; // Base baseline structural energy OPEX multiplier
-
-    // Dynamic runtime scenario adjustments injection
     const simulatedEmissions = isLatestMonth
       ? Math.max(0, item.emissions - totalCo2Reduced)
       : item.emissions;
@@ -197,7 +167,7 @@ export default function AnalyticsChart() {
                     {
                       dataKey: "simCost",
                       label: t.labelSimCost,
-                      color: "#1b5e20", // Coherent with EcoLedger primary corporate brand palette
+                      color: "#1b5e20",
                     },
                   ]
                 : [
@@ -209,7 +179,7 @@ export default function AnalyticsChart() {
                     {
                       dataKey: "simCo2",
                       label: t.labelSimCo2,
-                      color: "#26a69a", // Secondary corporate brand asset palette color mapping
+                      color: "#26a69a",
                     },
                   ]
             }

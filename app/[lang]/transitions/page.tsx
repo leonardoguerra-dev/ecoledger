@@ -15,7 +15,6 @@ import {
   CircularProgress,
   Paper,
 } from "@mui/material";
-
 import {
   Lock as LockIcon,
   AddCircle as AddIcon,
@@ -24,44 +23,8 @@ import {
   Euro as EuroIcon,
   Co2 as Co2Icon,
 } from "@mui/icons-material";
-
 import { useAuth } from "@/hooks/useAuth";
 import { useEnergy } from "@/hooks/useEnergy";
-
-const simulationTranslations: Record<string, Record<string, string>> = {
-  en: {
-    title: "Structural Simulation Panel",
-    subtitle:
-      "Deploy and analyze enterprise-grade carbon mitigation strategies across your industrial assets.",
-    lockedTitle: "Protected Simulation Core",
-    lockedDesc:
-      "Access to the predictive carbon modeling engine is restricted to authorized sustainability managers.",
-    ctaLogin: "Authenticate to View Panel",
-    availableTitle: "Available Mitigation Strategies",
-    activeTitle: "Currently Applied Strategies",
-    emptyActive:
-      "No strategies applied. Select from available options below to begin projection calculations.",
-    btnApply: "Apply Strategy",
-    btnRetract: "Retract Strategy",
-    plantLabel: "Target Plant",
-  },
-  it: {
-    title: "Pannello di Simulazione Strutturale",
-    subtitle:
-      "Applica e analizza strategie enterprise di mitigazione della CO₂ sui tuoi asset industriali.",
-    lockedTitle: "Nucleo di Simulazione Protetto",
-    lockedDesc:
-      "L'accesso al motore di modellazione predittiva della CO₂ è riservato ai gestori della sostenibilità autorizzati.",
-    ctaLogin: "Autenticati per Visualizzare",
-    availableTitle: "Strategie di Mitigazione Disponibili",
-    activeTitle: "Strategie Attualmente Applicate",
-    emptyActive:
-      "Nessuna strategia applicata. Seleziona dalle opzioni disponibili sotto per avviare i calcoli di proiezione.",
-    btnApply: "Applica Strategia",
-    btnRetract: "Disattiva Strategia",
-    plantLabel: "Filiale Target",
-  },
-};
 
 export default function TransitionsPage() {
   const router = useRouter();
@@ -74,12 +37,15 @@ export default function TransitionsPage() {
     isPremiumLoading,
     addManover,
     removeManover,
+    t: globalDict,
   } = useEnergy();
 
   const lang = (params?.lang as string) || "en";
-  const t = simulationTranslations[lang] || simulationTranslations.en;
+  const t = globalDict?.transitions;
 
   const getLocalizedRedirect = (path: string) => `/${lang}${path}`;
+
+  if (!t) return null;
 
   if (!isAuthenticated) {
     return (
@@ -138,7 +104,7 @@ export default function TransitionsPage() {
       >
         <CircularProgress />
         <Typography variant="body2" color="text.secondary">
-          Loading premium telemetry datasets...
+          {t.loadingTelemetry}
         </Typography>
       </Box>
     );
@@ -219,7 +185,6 @@ export default function TransitionsPage() {
                     >
                       {manover.title}
                     </Typography>
-                    {/* Fixed display property configuration inside the sx layer to avoid type mismatches */}
                     <Typography
                       variant="caption"
                       color="text.secondary"
@@ -341,7 +306,7 @@ export default function TransitionsPage() {
                     startIcon={<AddIcon />}
                     onClick={() => addManover(template)}
                   >
-                    {isAlreadyApplied ? "Applied" : t.btnApply}
+                    {isAlreadyApplied ? t.statusApplied : t.btnApply}
                   </Button>
                 </CardActions>
               </Card>

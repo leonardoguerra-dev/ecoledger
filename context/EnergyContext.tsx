@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import {
   PublicBaselineData,
   IndustrialPlant,
@@ -8,6 +9,7 @@ import {
 } from "@/types/energy";
 import { energyService } from "@/services/energyService";
 import { useAuth } from "./AuthContext";
+import { getDictionary, DictionaryType } from "@/utils/getDictionaries";
 
 interface EnergyContextType {
   publicData: PublicBaselineData | null;
@@ -18,6 +20,8 @@ interface EnergyContextType {
   addManover: (manover: Omit<TransitionManover, "id" | "status">) => void;
   removeManover: (id: string) => void;
   calculateSimulatedEmissions: () => number;
+  updatePlantEmissions: (plantId: string, newEmissions: number) => void;
+  t: DictionaryType | null; // Globally exposed and typed dictionary payload
 }
 
 export const EnergyContext = createContext<EnergyContextType | undefined>(
@@ -28,16 +32,25 @@ export const EnergyProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { isAuthenticated } = useAuth();
+  const params = useParams();
+  const lang = (params?.lang as string) || "en";
 
-  // State management for decoupled incremental loading
   const [publicData, setPublicData] = useState<PublicBaselineData | null>(null);
   const [premiumPlants, setPremiumPlants] = useState<IndustrialPlant[]>([]);
   const [activeManovers, setActiveManovers] = useState<TransitionManover[]>([]);
+  const [dict, setDict] = useState<DictionaryType | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isPremiumLoading, setIsPremiumLoading] = useState<boolean>(false);
 
-  // Step 1: Fetch initial public baseline data on application mount
+  // Core Sync: Resolve translation bundle synchronously on layout parameter change
+  useEffect(() => {
+    getDictionary(lang).then((loadedDictionary) => {
+      setDict(loadedDictionary);
+    });
+  }, [lang]);
+
+  // Fetch initial public baseline data on application mount
   useEffect(() => {
     const loadPublicData = async () => {
       try {
@@ -52,11 +65,10 @@ export const EnergyProvider: React.FC<{ children: React.ReactNode }> = ({
     loadPublicData();
   }, []);
 
-  // Step 2: Incremental fetch triggered when user changes to authenticated status
+  // Incremental fetch triggered when user changes to authenticated status
   useEffect(() => {
     const loadPremiumData = async () => {
       if (!isAuthenticated) {
-        // Reset premium states if user logs out
         setPremiumPlants([]);
         setActiveManovers([]);
         return;
@@ -76,7 +88,6 @@ export const EnergyProvider: React.FC<{ children: React.ReactNode }> = ({
     loadPremiumData();
   }, [isAuthenticated]);
 
-  // Step 3: Runtime context calculations (Sandbox Environment)
   const addManover = (newManover: Omit<TransitionManover, "id" | "status">) => {
     const manover: TransitionManover = {
       ...newManover,
@@ -90,20 +101,26 @@ export const EnergyProvider: React.FC<{ children: React.ReactNode }> = ({
     setActiveManovers((prev) => prev.filter((m) => m.id !== id));
   };
 
-  // Business Logic: Computes real-time dynamic environmental impacts
+  const updatePlantEmissions = (plantId: string, newEmissions: number) => {
+    setPremiumPlants((prevPlants) =>
+      prevPlants.map((plant) =>
+        plant.id === plantId
+          ? { ...plant, currentEmissions: newEmissions }
+          : plant,
+      ),
+    );
+  };
+
   const calculateSimulatedEmissions = (): number => {
     if (!publicData) return 0;
 
-    // Start from the latest historical month baseline as reference
     const latestMonth =
       publicData.monthlyHistory[publicData.monthlyHistory.length - 1];
     let totalEmissions = latestMonth.emissions;
 
-    // Apply active mitigation strategies to their targeted plants
     activeManovers.forEach((manover) => {
       const targetPlant = premiumPlants.find((p) => p.id === manover.plantId);
       if (targetPlant) {
-        // Calculate raw reduction based on specific plant baseline contribution
         const absoluteReduction =
           targetPlant.currentEmissions * (manover.reductionPercentage / 100);
         totalEmissions -= absoluteReduction;
@@ -119,11 +136,13 @@ export const EnergyProvider: React.FC<{ children: React.ReactNode }> = ({
         publicData,
         premiumPlants,
         activeManovers,
-        isLoading,
+        isLoading: isLoading || !dict, // Interface stays in loading placeholder until translations are ready
         isPremiumLoading,
         addManover,
         removeManover,
         calculateSimulatedEmissions,
+        updatePlantEmissions,
+        t: dict, // Available everywhere instantly via useEnergy()
       }}
     >
       {children}
