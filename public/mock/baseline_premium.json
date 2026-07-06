@@ -1,0 +1,48 @@
+{
+  "plants": [
+    {
+      "id": "plant-01",
+      "name": "Milano Manufacturing Hub",
+      "location": "Milan, Italy",
+      "sector": "Manufacturing",
+      "currentEmissions": 8500,
+      "energySource": "Natural Gas"
+    },
+    {
+      "id": "plant-02",
+      "name": "Priolo Chemical Refinery",
+      "location": "Siracusa, Italy",
+      "sector": "Chemical",
+      "currentEmissions": 12000,
+      "energySource": "Heavy Fuel Oil"
+    },
+    {
+      "id": "plant-03",
+      "name": "Bologna Logistics & Sorting",
+      "location": "Bologna, Italy",
+      "sector": "Logistics",
+      "currentEmissions": 4000,
+      "energySource": "Grid Mix"
+    }
+  ],
+  "allowedManovers": [
+    {
+      "title": "Install Rooftop Solar PV",
+      "plantId": "plant-01",
+      "reductionPercentage": 20,
+      "cost": 450000
+    },
+    {
+      "title": "Electrification of Thermal Processes",
+      "plantId": "plant-02",
+      "reductionPercentage": 35,
+      "cost": 1800000
+    },
+    {
+      "title": "Fleet Transition to EV Trucks",
+      "plantId": "plant-03",
+      "reductionPercentage": 40,
+      "cost": 650000
+    }
+  ]
+}

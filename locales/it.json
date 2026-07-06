@@ -1,0 +1,35 @@
+{
+  "dashboard": {
+    "welcome": "Panoramica Asset Ambientali",
+    "kpiEmissions": "Emissioni Ultimo Mese",
+    "kpiTax": "Carbon Tax Stimata",
+    "kpiLimit": "Limite Regolatorio",
+    "sandboxTitle": "Motore Predittivo Sandbox",
+    "sandboxLockedDesc": "Autenticazione richiesta per caricare i dati delle filiali ed elaborare simulazioni di riduzione dell'impronta di carbonio.",
+    "ctaLogin": "Sblocca Accesso Enterprise",
+    "activeManoversLabel": "Strategie Attive",
+    "simulatedEmissionsLabel": "Impronta Post-Mitigazione Simulata",
+    "chartTitle": "Andamento Storico Emissioni vs Limiti",
+    "emissionsLabel": "Emissioni CO₂ (t)",
+    "limitLabel": "Soglia Massima Regolatoria",
+    "mitigationCost": "Costo di Mitigazione",
+    "avoidedFines": "Sanzioni Evitate"
+  },
+  "ecoImpact": {
+    "title": "Eco-Impact & Analisi dell'Asset Mix",
+    "subtitle": "Panoramica della penetrazione delle rinnovabili, stati di conformità ed esposizione fiscale alla carbon tax.",
+    "chartMixTitle": "Mix Energetico Globale Consumato (%)",
+    "taxExposureTitle": "Crediti di Carbonio ed Esposizione Normativa",
+    "taxExposureDesc": "Basato sui superamenti effettivi simulati nella sandbox rispetto ai tetti di emissione regionali.",
+    "potentialPenalty": "PENALITÀ DI TASSAZIONE POTENZIALE",
+    "penaltyCalculated": "Calcolata a €{rate}/tCO2 sulle tolleranze dinamiche simulate.",
+    "tableTitle": "Applicazione dei Limiti sulle Filiali Regionali",
+    "thBranch": "Filiale Industriale",
+    "thProgress": "Progresso della Soglia di Emissione",
+    "thCurrent": "Livello Corrente",
+    "thCap": "Limite Normativo",
+    "thStatus": "Stato di Conformità",
+    "statusCompliant": "Conforme",
+    "statusViolation": "Violazione Critica del Limite"
+  }
+}

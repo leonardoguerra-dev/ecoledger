@@ -1,0 +1,35 @@
+{
+  "dashboard": {
+    "welcome": "Environmental Asset Overview",
+    "kpiEmissions": "Latest Month Emissions",
+    "kpiTax": "Estimated Carbon Tax",
+    "kpiLimit": "Regulatory Allowance",
+    "sandboxTitle": "Predictive Sandbox Engine",
+    "sandboxLockedDesc": "Authentication required to load live industrial plants and trigger structural carbon reduction simulations.",
+    "ctaLogin": "Unlock Enterprise Access",
+    "activeManoversLabel": "Active Strategies",
+    "simulatedEmissionsLabel": "Simulated Post-Mitigation Footprint",
+    "chartTitle": "Historical Emissions Trend vs Allowance Caps",
+    "emissionsLabel": "CO₂ Emissions (t)",
+    "limitLabel": "Regulatory Cap Limit",
+    "mitigationCost": "Mitigation Cost",
+    "avoidedFines": "Avoided Fines"
+  },
+  "ecoImpact": {
+    "title": "Eco-Impact & Asset Mix Analytics",
+    "subtitle": "Overview of renewable penetration, compliance statuses, and regulatory carbon taxation exposures.",
+    "chartMixTitle": "Global Consumed Energy Mix (%)",
+    "taxExposureTitle": "Carbon Credit & Regulation Exposure",
+    "taxExposureDesc": "Based on current active sandbox simulation overflows against regional emission caps.",
+    "potentialPenalty": "POTENTIAL TAXATION PENALTY",
+    "penaltyCalculated": "Calculated at €{rate}/tCO2 on dynamic allowances simulation.",
+    "tableTitle": "Regional Branch Cap Enforcement",
+    "thBranch": "Branch Node",
+    "thProgress": "Emission Threshold Progress",
+    "thCurrent": "Current Level",
+    "thCap": "Regulatory Cap",
+    "thStatus": "Compliance Status",
+    "statusCompliant": "Compliant",
+    "statusViolation": "Critical Cap Violation"
+  }
+}

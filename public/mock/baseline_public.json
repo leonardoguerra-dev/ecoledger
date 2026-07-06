@@ -1,0 +1,13 @@
+{
+  "companyName": "EcoLedger Industries Ltd",
+  "totalHistoricalEmissions": 24500,
+  "currentCarbonTaxRate": 85,
+  "monthlyHistory": [
+    { "month": "Jan", "emissions": 2100, "limit": 2000 },
+    { "month": "Feb", "emissions": 1950, "limit": 2000 },
+    { "month": "Mar", "emissions": 2200, "limit": 2000 },
+    { "month": "Apr", "emissions": 2050, "limit": 1950 },
+    { "month": "May", "emissions": 2300, "limit": 1950 },
+    { "month": "Jun", "emissions": 2400, "limit": 1950 }
+  ]
+}
